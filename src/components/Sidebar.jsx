@@ -38,6 +38,7 @@ export default function Sidebar({ open, setOpen }) {
             { to: "/dashboard", label: "Dashboard" },
             { to: "/queries", label: "Query List" },
             { to: "/services", label: "Services" },
+            {to: "/offline-services" ,label:"Our Offline Services"},
             { to: "/reviews", label: "⭐ All Reviews" },
             { to: "/team", label: "Team Members" },
             { to: "/projects", label: "Our Projects" },

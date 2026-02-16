@@ -23,6 +23,8 @@ import FAQ from "./Pages/FAQ";
 import AddFAQ from "./Pages/AddFAQ";
 import Services from "./Pages/Services";
 import AddService from "./Pages/AddService";
+import OurOfflineServices from "./Pages/OurOfflineServices";
+import AddOfflineService from "./Pages/AddOfflineService";
 
 
 export default function App() {
@@ -61,7 +63,10 @@ export default function App() {
         <Route path="/faq/edit/:id" element={<AddFAQ />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/add" element={<AddService />} />
-        <Route path="/services/edit/:id" element={<AddService />} />
+        <Route path="/services/edit/:slug" element={<AddService />} />
+        <Route path="/offline-services" element={<OurOfflineServices/>}/>
+        <Route path="/offline-services/add" element={<AddOfflineService/>}/>
+        <Route path="/offline-services/edit/:id" element={<AddOfflineService/>}/>
 
 
 

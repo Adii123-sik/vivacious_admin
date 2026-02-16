@@ -14,15 +14,27 @@ const Section = ({ title }) => (
 );
 
 const AddService = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
-  const isEdit = Boolean(id);
+ const isEdit = Boolean(slug);
 
   const fileRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bannerFile, setBannerFile] = useState(null);
   const [preview, setPreview] = useState(null);
+
+
+  /* AUTO SLUG GENERATOR */
+const generateSlug = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+};
+
 
   const [form, setForm] = useState({
     service_name: "",
@@ -80,9 +92,10 @@ const AddService = () => {
     const loadService = async () => {
       try {
         const { data } = await axios.get(
-          `${API_BASE_URL}/api/services/${id}`
+          `${API_BASE_URL}/api/services/${slug}`
         );
-        setForm({ ...form, ...data });
+        setForm(prev => ({ ...prev, ...data }));
+
 
         if (data.service_banner_image) {
           setPreview(data.service_banner_image);
@@ -94,11 +107,25 @@ const AddService = () => {
 
     loadService();
     // eslint-disable-next-line
-  }, [id]);
+  }, [slug]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const { name, value } = e.target;
+
+  if (name === "service_name" && !isEdit) {
+    setForm({
+      ...form,
+      service_name: value,
+      slug: generateSlug(value),
+    });
+  } else {
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,7 +144,7 @@ const AddService = () => {
 
       if (isEdit) {
         await axios.put(
-          `${API_BASE_URL}/api/services/${id}`,
+          `${API_BASE_URL}/api/services/${slug}`,
           fd
         );
         toast.success("Service updated");

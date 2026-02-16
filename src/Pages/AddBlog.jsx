@@ -7,16 +7,17 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/apiConfig";
 
 const AddBlog = () => {
-  const { id } = useParams();
+  const { id } = useParams();   // ✅ USING ID
   const navigate = useNavigate();
   const fileRef = useRef(null);
 
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id);   // ✅ FIXED
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
+    slug: "",
     category: "",
     author: "",
     short_desc: "",
@@ -27,18 +28,29 @@ const AddBlog = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  /* LOAD BLOG FOR EDIT */
+  /* ✅ SLUG GENERATOR */
+  const generateSlug = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim();
+  };
+
+  /* ✅ LOAD BLOG FOR EDIT (BY ID) */
   useEffect(() => {
     if (!isEdit) return;
 
     const loadBlog = async () => {
       try {
         const { data } = await axios.get(
-          `${API_BASE_URL}/api/blogs/${id}`
+          `${API_BASE_URL}/api/blogs/id/${id}`
         );
 
         setForm({
           title: data.title || "",
+          slug: data.slug || "",
           category: data.category || "",
           author: data.author || "",
           short_desc: data.short_desc || "",
@@ -59,7 +71,7 @@ const AddBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.title || !form.category || !form.content) {
+    if (!form.title || !form.slug || !form.category || !form.content) {
       toast.error("Required fields missing");
       return;
     }
@@ -69,6 +81,7 @@ const AddBlog = () => {
 
       const fd = new FormData();
       fd.append("title", form.title);
+      fd.append("slug", form.slug);
       fd.append("category", form.category);
       fd.append("author", form.author);
       fd.append("short_desc", form.short_desc);
@@ -78,7 +91,7 @@ const AddBlog = () => {
 
       if (isEdit) {
         await axios.put(
-          `${API_BASE_URL}/api/blogs/${id}`,
+          `${API_BASE_URL}/api/blogs/${id}`,   // ✅ UPDATE BY ID
           fd
         );
         toast.success("Blog updated");
@@ -111,6 +124,7 @@ const AddBlog = () => {
           </h1>
 
           <div className="max-w-3xl bg-white rounded-xl shadow p-6">
+
             {/* IMAGE */}
             <div className="flex justify-center mb-6">
               <div
@@ -128,6 +142,7 @@ const AddBlog = () => {
                   <span className="text-gray-400">Upload</span>
                 )}
               </div>
+
               <input
                 type="file"
                 hidden
@@ -142,17 +157,35 @@ const AddBlog = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* TITLE */}
               <input
                 placeholder="Blog Title"
                 value={form.title}
                 onChange={(e) =>
-                  setForm({ ...form, title: e.target.value })
+                  setForm({
+                    ...form,
+                    title: e.target.value,
+                    slug: !isEdit
+                      ? generateSlug(e.target.value)
+                      : form.slug,
+                  })
+                }
+                className="input"
+              />
+
+              {/* SLUG FIELD */}
+              <input
+                placeholder="Slug (auto-generated)"
+                value={form.slug}
+                onChange={(e) =>
+                  setForm({ ...form, slug: e.target.value })
                 }
                 className="input"
               />
 
               <input
-                placeholder="Category (SEO, Web Design, etc)"
+                placeholder="Category"
                 value={form.category}
                 onChange={(e) =>
                   setForm({ ...form, category: e.target.value })
@@ -198,6 +231,7 @@ const AddBlog = () => {
               >
                 {loading ? "Saving..." : "Save Blog"}
               </button>
+
             </form>
           </div>
         </main>

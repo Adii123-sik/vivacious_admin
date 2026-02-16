@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../config/apiConfig";
 
-const Services = () => {
+const OurOfflineServices = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,7 +15,7 @@ const Services = () => {
   const loadServices = async () => {
     try {
       const { data } = await axios.get(
-        `${API_BASE_URL}/api/services`
+        `${API_BASE_URL}/api/offline-services?admin=true`
       );
       setServices(data);
     } catch {
@@ -29,12 +29,12 @@ const Services = () => {
     loadServices();
   }, []);
 
-  const handleDelete = async (slug) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this service?")) return;
 
     try {
       await axios.delete(
-        `${API_BASE_URL}/api/services/${slug}`
+        `${API_BASE_URL}/api/offline-services/${id}`
       );
       toast.success("Service deleted");
       loadServices();
@@ -51,29 +51,33 @@ const Services = () => {
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
         <main className="pt-20 px-4 md:px-6">
+
+          {/* HEADER */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl md:text-2xl font-semibold">
-              Services
+              Our Offline Services
             </h1>
 
             <button
-              onClick={() => navigate("/services/add")}
+              onClick={() => navigate("/offline-services/add")}
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm"
             >
-              + Add Service
+              + Add Offline Service
             </button>
           </div>
 
+          {/* TABLE */}
           {loading ? (
             <p>Loading...</p>
           ) : (
             <div className="bg-white rounded-lg shadow overflow-x-auto">
-              <table className="min-w-[900px] w-full text-sm">
+              <table className="min-w-[1100px] w-full text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border px-3 py-2">Banner</th>
-                    <th className="border px-3 py-2">Service Name</th>
-                    <th className="border px-3 py-2">Slug</th>
+                    <th className="border px-3 py-2">Image</th>
+                    <th className="border px-3 py-2">Title</th>
+                    <th className="border px-3 py-2">Order</th>
+                    <th className="border px-3 py-2">Status</th>
                     <th className="border px-3 py-2 text-center">
                       Action
                     </th>
@@ -82,13 +86,15 @@ const Services = () => {
 
                 <tbody>
                   {services.map((s) => (
-                    <tr key={s.slug} className="hover:bg-gray-50">
+                    <tr key={s.id} className="hover:bg-gray-50">
+
+                      {/* IMAGE PREVIEW */}
                       <td className="border px-3 py-2">
-                        {s.service_banner_image ? (
+                        {s.image1 ? (
                           <img
-                            src={s.service_banner_image}
-                            alt={s.service_name}
-                            className="w-20 h-14 object-cover rounded border"
+                            src={s.image1}
+                            alt={s.title}
+                            className="w-16 h-12 object-cover rounded"
                           />
                         ) : (
                           <span className="text-gray-400 text-xs">
@@ -98,17 +104,34 @@ const Services = () => {
                       </td>
 
                       <td className="border px-3 py-2">
-                        {s.service_name}
+                        <div className="font-medium">{s.title}</div>
+                        {s.extra_content && (
+                          <div className="text-xs text-gray-500 truncate max-w-xs">
+                            {s.extra_content}
+                          </div>
+                        )}
                       </td>
 
-                      <td className="border px-3 py-2">
-                        {s.slug}
+                      <td className="border px-3 py-2 text-center">
+                        {s.display_order}
+                      </td>
+
+                      <td className="border px-3 py-2 text-center">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            s.is_active
+                              ? "bg-green-100 text-green-600"
+                              : "bg-red-100 text-red-600"
+                          }`}
+                        >
+                          {s.is_active ? "Active" : "Inactive"}
+                        </span>
                       </td>
 
                       <td className="border px-3 py-2 text-center space-x-2">
                         <button
                           onClick={() =>
-                            navigate(`/services/edit/${s.slug}`)
+                            navigate(`/offline-services/edit/${s.id}`)
                           }
                           className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                         >
@@ -116,7 +139,7 @@ const Services = () => {
                         </button>
 
                         <button
-                          onClick={() => handleDelete(s.slug)}
+                          onClick={() => handleDelete(s.id)}
                           className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                         >
                           Delete
@@ -127,8 +150,11 @@ const Services = () => {
 
                   {!services.length && (
                     <tr>
-                      <td colSpan="4" className="text-center py-6 text-gray-400">
-                        No services found
+                      <td
+                        colSpan="5"
+                        className="text-center py-6 text-gray-400"
+                      >
+                        No Services Found
                       </td>
                     </tr>
                   )}
@@ -142,4 +168,4 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default OurOfflineServices;
