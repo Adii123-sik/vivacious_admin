@@ -42,6 +42,7 @@ const generateSlug = (text) => {
     service_icon: "",
     service_description: "",
     slug: "",
+    display_order: 0,
 
     intro_heading: "",
     intro_content: "",
@@ -83,6 +84,7 @@ const generateSlug = (text) => {
 
     final_result: "",
     is_active: 1,
+   
   });
 
   /* LOAD DATA FOR EDIT */
@@ -212,6 +214,14 @@ const generateSlug = (text) => {
 
               <Section title="Basic Service Information" />
               <input name="service_name" placeholder="Service Name" value={form.service_name} onChange={handleChange} className="input" />
+               <input
+                type="number"
+                name="display_order"
+                placeholder="Display Order (1,2,3...)"
+                value={form.display_order}
+                onChange={handleChange}
+                className="input"
+              />
               <input name="category" placeholder="Category" value={form.category} onChange={handleChange} className="input" />
               <input name="service_icon" placeholder="Service Icon (bx class)" value={form.service_icon} onChange={handleChange} className="input" />
               <textarea name="service_description" placeholder="Service Description" value={form.service_description} onChange={handleChange} className="input" rows="3" />

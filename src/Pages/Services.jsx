@@ -74,9 +74,11 @@ const Services = () => {
                     <th className="border px-3 py-2">Banner</th>
                     <th className="border px-3 py-2">Service Name</th>
                     <th className="border px-3 py-2">Slug</th>
+                    <th className="border px-3 py-2">Order</th>
                     <th className="border px-3 py-2 text-center">
                       Action
                     </th>
+
                   </tr>
                 </thead>
 
@@ -97,12 +99,18 @@ const Services = () => {
                         )}
                       </td>
 
+
+
                       <td className="border px-3 py-2">
                         {s.service_name}
                       </td>
 
                       <td className="border px-3 py-2">
                         {s.slug}
+                      </td>
+
+                      <td className="border px-3 py-2 text-center">
+                        {s.display_order}
                       </td>
 
                       <td className="border px-3 py-2 text-center space-x-2">
