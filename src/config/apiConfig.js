@@ -1,5 +1,5 @@
 
-export const API_BASE_URL ="https://api.vivacioussolutions.com";
+export const API_BASE_URL ="https://backend.vivacioussolutions.com";
 
 
 
