@@ -16,24 +16,25 @@ const Section = ({ title }) => (
 const AddService = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
- const isEdit = Boolean(slug);
+  const isEdit = Boolean(slug);
 
   const fileRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bannerFile, setBannerFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [allServices, setAllServices] = useState([]);
 
 
   /* AUTO SLUG GENERATOR */
-const generateSlug = (text) => {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-};
+  const generateSlug = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim();
+  };
 
 
   const [form, setForm] = useState({
@@ -42,7 +43,7 @@ const generateSlug = (text) => {
     service_icon: "",
     service_description: "",
     slug: "",
-    display_order: 0,
+    parent_id: "",
 
     intro_heading: "",
     intro_content: "",
@@ -84,7 +85,6 @@ const generateSlug = (text) => {
 
     final_result: "",
     is_active: 1,
-   
   });
 
   /* LOAD DATA FOR EDIT */
@@ -111,22 +111,39 @@ const generateSlug = (text) => {
     // eslint-disable-next-line
   }, [slug]);
 
-  const handleChange = (e) => {
-  const { name, value } = e.target;
 
-  if (name === "service_name" && !isEdit) {
-    setForm({
-      ...form,
-      service_name: value,
-      slug: generateSlug(value),
-    });
-  } else {
-    setForm({
-      ...form,
-      [name]: value,
-    });
-  }
-};
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/services`);
+        setAllServices(data);
+      } catch (err) {
+        console.error("Failed to load services", err);
+      }
+    };
+
+    loadServices();
+  }, []);
+
+
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "service_name" && !isEdit) {
+      setForm({
+        ...form,
+        service_name: value,
+        slug: generateSlug(value),
+      });
+    } else {
+      setForm({
+        ...form,
+        [name]: value,
+      });
+    }
+  };
 
 
   const handleSubmit = async (e) => {
@@ -183,8 +200,8 @@ const generateSlug = (text) => {
             <div
               onClick={() => fileRef.current.click()}
               className="w-full h-48 border-2 border-dashed rounded-lg
-              flex items-center justify-center cursor-pointer
-              overflow-hidden bg-gray-50 mb-6"
+                flex items-center justify-center cursor-pointer
+                overflow-hidden bg-gray-50 mb-6"
             >
               {preview ? (
                 <img
@@ -213,19 +230,27 @@ const generateSlug = (text) => {
             <form onSubmit={handleSubmit}>
 
               <Section title="Basic Service Information" />
-              <input name="service_name" placeholder="Service Name" value={form.service_name} onChange={handleChange} className="input" />
-               <input
-                type="number"
-                name="display_order"
-                placeholder="Display Order (1,2,3...)"
-                value={form.display_order}
+              <select
+                name="parent_id"
+                value={form.parent_id}
                 onChange={handleChange}
                 className="input"
-              />
+              >
+                <option value="">Main Service</option>
+
+                {allServices
+                  .filter(service => !service.parent_id)
+                  .map(service => (
+                    <option key={service.id} value={service.id}>
+                      {service.service_name}
+                    </option>
+                  ))}
+              </select>
+              <input name="service_name" placeholder="Service Name" value={form.service_name} onChange={handleChange} className="input" />
               <input name="category" placeholder="Category" value={form.category} onChange={handleChange} className="input" />
               <input name="service_icon" placeholder="Service Icon (bx class)" value={form.service_icon} onChange={handleChange} className="input" />
               <textarea name="service_description" placeholder="Service Description" value={form.service_description} onChange={handleChange} className="input" rows="3" />
-              <input name="slug" placeholder="Slug (web-designing)" value={form.slug} onChange={handleChange} className="input" />
+              <input name="slug" placeholder="Slug (web-designing)" value={form.slug} className="input" />
 
               <Section title="Intro Section" />
               <input name="intro_heading" placeholder="Intro Heading" value={form.intro_heading} onChange={handleChange} className="input" />
@@ -290,16 +315,17 @@ const generateSlug = (text) => {
       </div>
 
       <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #cbd5e1;
-          padding: 10px;
-          border-radius: 6px;
-          margin-bottom: 10px;
-        }
-      `}</style>
+          .input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+          }
+        `}</style>
     </div>
   );
 };
 
 export default AddService;
+//add

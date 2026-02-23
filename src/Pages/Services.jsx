@@ -78,7 +78,6 @@ const Services = () => {
                     <th className="border px-3 py-2 text-center">
                       Action
                     </th>
-
                   </tr>
                 </thead>
 
@@ -99,8 +98,6 @@ const Services = () => {
                         )}
                       </td>
 
-
-
                       <td className="border px-3 py-2">
                         {s.service_name}
                       </td>
@@ -108,9 +105,37 @@ const Services = () => {
                       <td className="border px-3 py-2">
                         {s.slug}
                       </td>
+                      <td className="border px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            className="border rounded px-2 py-1 w-20"
+                            value={s.display_order ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setServices(prev =>
+                                prev.map(x => x.slug === s.slug ? { ...x, display_order: val } : x)
+                              );
+                            }}
+                          />
 
-                      <td className="border px-3 py-2 text-center">
-                        {s.display_order}
+                          <button
+                            onClick={async () => {
+                              try {
+                                await axios.put(`${API_BASE_URL}/api/services/${s.slug}/order`, {
+                                  display_order: Number(s.display_order),
+                                });
+                                toast.success("Order updated");
+                                loadServices();
+                              } catch (e) {
+                                toast.error(e?.response?.data?.message || "Order update failed");
+                              }
+                            }}
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                          >
+                            Save
+                          </button>
+                        </div>
                       </td>
 
                       <td className="border px-3 py-2 text-center space-x-2">
